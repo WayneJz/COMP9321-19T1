@@ -7,6 +7,7 @@ Student ID:z5146092
 import csv
 import re
 import json
+import os
 import matplotlib.pyplot as plot
 
 
@@ -59,6 +60,8 @@ def q2():
 
 def q3():
     accident_dict = dict()
+    if not os.path.exists("result_q2.csv"):
+        q2()
     with open('result_q2.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
@@ -74,29 +77,41 @@ def q3():
         print(format_words(element[0]) + str(element[1]))
 
 
+def date_split(word):
+    convert_month = {'01': 'January', '02': 'February', '03': 'March', '04': 'April',
+                     '05': 'May', '06': 'June', '07': 'July', '08': 'August',
+                     '09': 'September', '10': 'October', '11': 'November', '12': 'December'}
+
+    search_case = re.search("(\d+)/(\d+)/\d+\s+(\d+):\d+", word)
+    return int(search_case.group(1)), convert_month[search_case.group(2)], int(search_case.group(3))
+
+
 def q4():
-    air_quality_list = list()
+    air_stations_list = list()
+    station_district_dict = dict()
     with open('air_stations_Nov2017.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
             if re.match('District Name', row[4]):
                 continue
-            air_quality_dict = dict()
-            air_quality_dict['Station'] = row[0] + ' - ' + row[5]
-            air_quality_dict['District Name'] = row[4]
-            air_quality_list.append(air_quality_dict)
-    print(json.dumps(air_quality_list))
+            station_district_dict[row[0]] = row[4]
+            air_stations_dict = dict()
+            air_stations_dict['Station'] = row[0] + ' - ' + row[5]
+            air_stations_dict['District Name'] = row[4]
+            air_stations_list.append(air_stations_dict)
+    print(json.dumps(air_stations_list))
 
-    origin_file = open('air_quality_Nov2017.csv', 'r', encoding='utf-8')
-    cleansed_file = open('result_q4.csv', 'w', newline='', encoding='utf-8')
-    reader = csv.reader(origin_file)
-    writer = csv.writer(cleansed_file)
+    air_quality_file = open('air_quality_Nov2017.csv', 'r', encoding='utf-8')
+    air_quality_reader = csv.reader(open('air_quality_Nov2017.csv', 'r', encoding='utf-8'))
     not_good_count = 0
-    for row in reader:
+    not_good_list = list()
+    for row in air_quality_reader:
         if re.match("Good", row[1], flags=re.I) or not re.findall("\w+", row[1]):
             continue
         else:
-            writer.writerow(row)
+            if row[0] in station_district_dict.keys():
+                day, month, hour = date_split(row[13])
+                not_good_list.append([station_district_dict[row[0]], day, month, hour])
             if not_good_count <= 10:
                 temp = list()
                 for element in row:
@@ -105,8 +120,18 @@ def q4():
                 print((''.join(temp)).rstrip())
                 not_good_count += 1
 
-    origin_file.close()
-    cleansed_file.close()
+    air_quality_file.close()
+
+    accident_file = open('accidents_2017.csv', 'r', encoding='utf-8')
+    accident_reader = csv.reader(accident_file)
+    accident_air_file = open('result_q4.csv', 'w', newline='', encoding='utf-8')
+    accident_air_writer = csv.writer(accident_air_file)
+    for row in accident_reader:
+        if re.match('District Name', row[1]) or [row[1], int(row[6]), row[5], int(row[7])] in not_good_list:
+            accident_air_writer.writerow(row)
+
+    accident_file.close()
+    accident_air_file.close()
 
 
 def q5():
@@ -121,3 +146,4 @@ q1()
 q2()
 q3()
 q4()
+date_split('04/11/2018 21:00')
