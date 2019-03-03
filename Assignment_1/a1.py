@@ -9,15 +9,15 @@ import re
 import json
 import os
 import matplotlib.pyplot as plot
-import utm
+# import utm
 
 
-def format_words(element):
+def format_words(element, flag='ALL'):
     ignore_words = {"la", "de"}
     ignore_initials = {"d'", "l'"}
     cleansed_element = list()
     for words in element.split():
-        if words in ignore_words or words[:2] in ignore_initials:
+        if words in ignore_words or words[:2] in ignore_initials or flag != 'ALL':
             cleansed_element.append(words)
         else:
             cleansed_element.append(words.title())
@@ -37,8 +37,12 @@ def q1():
             if line >= 10:
                 break
             temp = list()
+            if line == 0:
+                format_flag = 'I'
+            else:
+                format_flag = 'ALL'
             for element in row:
-                element = format_words(element)
+                element = format_words(element, flag=format_flag)
                 temp.append(element)
             print((''.join(temp)).rstrip())
             line += 1
@@ -73,7 +77,7 @@ def q3():
             else:
                 accident_dict[row[1]] += 1
 
-    print((format_words("District Name") + format_words("Total numbers of accidents")).rstrip())
+    print((format_words("District Name") + format_words("Total numbers of accidents", flag='I')).rstrip())
     for element in sorted(accident_dict.items(), key=lambda x: x[1], reverse=True):
         print(format_words(element[0]) + str(element[1]))
 
@@ -142,8 +146,8 @@ def q5():
         for row in reader:
             if re.match('Longitude', row[13]):
                 continue
-            points.append((utm.from_latlon(float(row[14]), float(row[13]))[0],
-                           utm.from_latlon(float(row[14]), float(row[13]))[1]))
+            # points.append((utm.from_latlon(float(row[14]), float(row[13]))[0],
+            #                utm.from_latlon(float(row[14]), float(row[13]))[1]))
 
     # print(points)
     # plot.figure(figsize=(8, 6))
