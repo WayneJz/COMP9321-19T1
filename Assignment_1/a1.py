@@ -9,6 +9,7 @@ import re
 import json
 import os
 import matplotlib.pyplot as plot
+import utm
 
 
 def format_words(element):
@@ -135,14 +136,23 @@ def q4():
 
 
 def q5():
-    '''
-    Bonus Question(Optional).
-    Put Your Question 5's code in this function.
-    '''
-    pass 
+    points = list()
+    with open('accidents_2017.csv', 'r', encoding='utf-8') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if re.match('Longitude', row[13]):
+                continue
+            points.append((utm.from_latlon(float(row[14]), float(row[13]))[0],
+                           utm.from_latlon(float(row[14]), float(row[13]))[1]))
+
+    # print(points)
+    # plot.figure(figsize=(8, 6))
+    # plot.imshow([(1,2), (1, 2), (3,4)],interpolation='nearest',cmap='bone',origin='lower')
+    # plot.show()
 
 
 q1()
 q2()
 q3()
 q4()
+q5()
