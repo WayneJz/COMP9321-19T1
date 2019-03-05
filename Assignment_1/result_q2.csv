@@ -5778,7 +5778,6 @@ Id,District Name,Neighborhood Name,Street,Weekday,Month,Day,Hour,Part of the day
 2017S006855    ,Sants-Montjuïc,la Marina de Port,Corts Catalanes                                   ,Wednesday,August,9,5,Night,0,1,1,1,2.136468,41.365161
 2017S006948    ,Sants-Montjuïc,la Marina de Port,Alts Forns                                        ,Sunday,August,13,2,Night,0,0,0,3,2.136293,41.357027
 2017S003286    ,Sants-Montjuïc,la Marina de Port,Energia                                           ,Monday,April,10,13,Morning,1,0,1,1,2.136744,41.357598
-2017S003286    ,Sants-Montjuïc,la Marina de Port,Energia                                           ,Monday,April,10,13,Morning,1,0,1,1,2.136744,41.357598
 2017S003992    ,Sants-Montjuïc,la Marina de Port,Zona Franca                                       ,Friday,May,5,16,Afternoon,1,0,1,2,2.137939,41.362043
 2017S004508    ,Sants-Montjuïc,la Marina de Port,Zona Franca / Prat                                ,Monday,May,22,7,Morning,1,0,1,2,2.136531,41.363638
 2017S001919    ,Sants-Montjuïc,la Marina de Port,ALTS FORNS                                        ,Wednesday,March,8,20,Afternoon,0,0,0,2,2.136095,41.356847
@@ -6469,7 +6468,6 @@ Id,District Name,Neighborhood Name,Street,Weekday,Month,Day,Hour,Part of the day
 2017S007624    ,Sant Martí,el Besòs i el Maresme,Llull / Prim                                      ,Thursday,September,14,20,Afternoon,1,0,1,2,2.217554,41.412645
 2017S008028    ,Sant Martí,Provençals del Poblenou,Pere IV / Selva de Mar                            ,Friday,September,29,9,Morning,1,0,1,2,2.20469,41.412124
 2017S009069    ,Sant Martí,Provençals del Poblenou,Pere IV / Selva de Mar                            ,Friday,November,3,7,Morning,0,0,0,2,2.20469,41.412124
-2017S008856    ,Sant Martí,Provençals del Poblenou,Diagonal / Bac de Roda                            ,Thursday,October,26,8,Morning,1,0,1,1,2.203962,41.407568
 2017S003868    ,Sant Martí,Provençals del Poblenou,Bac de Roda / Cristóbal de Moura                  ,Tuesday,May,2,9,Morning,2,0,2,2,2.202878,41.408369
 2017S006097    ,Sant Martí,el Besòs i el Maresme,Veneçuela                                         ,Thursday,July,13,13,Morning,2,0,2,2,2.21256,41.414117
 2017S009520    ,Sant Martí,el Besòs i el Maresme,C-31                                              ,Thursday,November,16,14,Afternoon,2,0,2,2,2.210008,41.420525
@@ -6956,7 +6954,6 @@ Id,District Name,Neighborhood Name,Street,Weekday,Month,Day,Hour,Part of the day
 2017S005103    ,Eixample,la Dreta de l'Eixample,Sant Joan                                         ,Saturday,June,10,19,Afternoon,1,0,1,2,2.171282,41.397779
 2017S003572    ,Eixample,la Dreta de l'Eixample,Sant Joan / València                              ,Friday,April,21,15,Afternoon,0,0,0,2,2.170897,41.398395
 2017S009408    ,Eixample,la Dreta de l'Eixample,València                                          ,Monday,November,13,14,Afternoon,1,0,1,2,2.167006,41.395338
-2017S003750    ,Eixample,la Dreta de l'Eixample,Bergara                                           ,Thursday,April,27,16,Afternoon,1,0,1,1,2.168836,41.386306
 2017S006342    ,Eixample,la Dreta de l'Eixample,Bergara / Catalunya                               ,Thursday,July,20,15,Afternoon,2,0,2,1,2.169382,41.386614
 2017S007179    ,Eixample,la Dreta de l'Eixample,Girona / Corts Catalanes                          ,Friday,August,25,16,Afternoon,1,0,1,2,2.173277,41.393182
 2017S001528    ,Eixample,el Fort Pienc,GV CORTS CATALANES / Sicília                      ,Friday,February,24,12,Morning,1,0,1,2,2.178932,41.397435
@@ -9183,7 +9180,6 @@ Id,District Name,Neighborhood Name,Street,Weekday,Month,Day,Hour,Part of the day
 2017S009159    ,Sant Martí,Diagonal Mar i el Front Marítim del Poblenou,Litoral (Llobregat)                               ,Monday,November,6,7,Morning,0,1,1,2,2.214588,41.403472
 2017S008744    ,Sant Martí,Diagonal Mar i el Front Marítim del Poblenou,B-10 (Llobregat)                                  ,Sunday,October,22,20,Afternoon,4,0,4,3,2.217908,41.405822
 2017S007895    ,Sant Martí,Diagonal Mar i el Front Marítim del Poblenou,B-10 (Llobregat)                                  ,Saturday,September,23,21,Afternoon,0,0,0,2,2.209568,41.399537
-2017S004447    ,Sant Martí,Diagonal Mar i el Front Marítim del Poblenou,Taulat                                            ,Friday,May,19,20,Afternoon,1,0,1,1,2.209813,41.402218
 2017S001970    ,Sant Martí,Diagonal Mar i el Front Marítim del Poblenou,RDA LITORAL(LLOBRE                                ,Friday,March,10,13,Morning,2,0,2,2,2.218003,41.406044
 2017S008029    ,Sant Martí,el Parc i la Llacuna del Poblenou,Bolívia                                           ,Friday,September,29,9,Morning,1,0,1,2,2.188562,41.400889
 2017S007916    ,Sant Martí,Diagonal Mar i el Front Marítim del Poblenou,Taulat                                            ,Sunday,September,24,21,Afternoon,1,0,1,3,2.213215,41.404776
