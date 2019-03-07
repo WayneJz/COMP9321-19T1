@@ -48,11 +48,15 @@ def q1():
 
 
 def q2():
+    id_list = list()
     origin_file = open('accidents_2017.csv', 'r', encoding='utf-8')
     cleansed_file = open('result_q2.csv', 'w', newline='', encoding='utf-8')
     reader = csv.reader(origin_file)
     writer = csv.writer(cleansed_file)
     for row in reader:
+        if row[0] in id_list:
+            continue
+        id_list.append(row[0])
         for element in row:
             if re.findall("Unknown", element, flags=re.I):
                 break
