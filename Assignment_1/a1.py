@@ -9,7 +9,8 @@ import re
 import json
 import os
 import matplotlib.pyplot as plot
-# import utm
+import numpy as np
+import utm
 
 
 def format_words(element, flag='ALL'):
@@ -33,18 +34,16 @@ def q1():
     with open('accidents_2017.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         line = 0
+        format_flag = 'I'
         for row in reader:
             if line >= 10:
                 break
             temp = list()
-            if line == 0:
-                format_flag = 'I'
-            else:
-                format_flag = 'ALL'
             for element in row:
                 element = format_words(element, flag=format_flag)
                 temp.append(element)
             print((''.join(temp)).rstrip())
+            format_flag = 'ALL'
             line += 1
 
 
@@ -140,19 +139,24 @@ def q4():
 
 
 def q5():
+    from PIL import Image
     points = list()
     with open('accidents_2017.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
             if re.match('Longitude', row[13]):
                 continue
-            # points.append((utm.from_latlon(float(row[14]), float(row[13]))[0],
-            #                utm.from_latlon(float(row[14]), float(row[13]))[1]))
+            points.append([utm.from_latlon(float(row[14]), float(row[13]))[0],
+                           utm.from_latlon(float(row[14]), float(row[13]))[1]])
+            # points.append([float(row[14]), float(row[13])])
+    print(points)
+    x_coordinates = [x[0] for x in points]
+    y_coordinates = [y[0] for y in points]
 
-    # print(points)
-    # plot.figure(figsize=(8, 6))
-    # plot.imshow([(1,2), (1, 2), (3,4)],interpolation='nearest',cmap='bone',origin='lower')
-    # plot.show()
+    plot.hist2d(x_coordinates, y_coordinates, bins=100)
+    plot.colorbar()
+
+    plot.show()
 
 
 q1()
