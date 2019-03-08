@@ -168,7 +168,7 @@ def q5():
         pixels[offset_calculation(image_length, image_width, point[0], point[1])] = (255, 190, 0, 255)
 
     image.show()
-    image.save('Map_submission.png')
+    image.save('map.png')
 
 
 q1()
