@@ -8,9 +8,7 @@ import csv
 import re
 import json
 import os
-import matplotlib.pyplot as plot
-import numpy as np
-import utm
+from PIL import Image
 
 
 def format_words(element, flag='ALL'):
@@ -142,25 +140,35 @@ def q4():
     accident_air_file.close()
 
 
+def offset_calculation(image_length, image_width, latitude, longitude):
+    image_left_top = (41.4936091, 1.9168051)    # Convert from UTM 31T 409584 4594121
+    image_right_down = (41.2829106, 2.4232102)      # Convert from UTM 31T 451699 4570324
+
+    x_pixel = round(((longitude - image_left_top[1]) / (image_right_down[1] - image_left_top[1])) * image_length)
+    y_pixel = round((1 - (latitude - image_right_down[0]) / (image_left_top[0] - image_right_down[0])) * image_width)
+
+    return x_pixel + 15, y_pixel + 8   # Adjust pixels as the original image scale is not a real map scale
+
+
 def q5():
-    from PIL import Image
     points = list()
     with open('accidents_2017.csv', 'r', encoding='utf-8') as file:
         reader = csv.reader(file)
         for row in reader:
             if re.match('Longitude', row[13]):
                 continue
-            points.append([utm.from_latlon(float(row[14]), float(row[13]))[0],
-                           utm.from_latlon(float(row[14]), float(row[13]))[1]])
-            # points.append([float(row[14]), float(row[13])])
-    print(points)
-    x_coordinates = [x[0] for x in points]
-    y_coordinates = [y[0] for y in points]
+            points.append([float(row[14]), float(row[13])])
 
-    plot.hist2d(x_coordinates, y_coordinates, bins=100)
-    plot.colorbar()
+    image = Image.open('Map.png')
+    image_length = image.size[0]
+    image_width = image.size[1]
+    pixels = image.load()
 
-    plot.show()
+    for point in points:
+        pixels[offset_calculation(image_length, image_width, point[0], point[1])] = (255, 190, 0, 255)
+
+    image.show()
+    image.save('Map_submission.png')
 
 
 q1()
