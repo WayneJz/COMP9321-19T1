@@ -20,10 +20,8 @@ api = Api(app, title="World Bank", description="API for World Bank Economic Indi
 def database_controller(database, command):
     connection = sqlite3.connect(database)
     cursor = connection.cursor()
-    print(command)
     cursor.executescript(command)
     result = cursor.fetchall()
-    print(result)
     connection.commit()
     connection.close()
     return result
@@ -31,7 +29,7 @@ def database_controller(database, command):
 
 def create_db(db_file):
     if os.path.exists(db_file):
-        print('Database already exists! No creating work performed.')
+        print('Database already exists.')
         return False
     print('Creating database ...')
     database_controller(db_file,
@@ -61,6 +59,24 @@ def remote_request(indicator, start=2013, end=2018, content_format='json', page=
         return json.loads(data)[1]
 
 
+def collection_table_updater(database, indicator, action):
+    query = database_controller(database, f"SELECT * FROM Collection WHERE indicator = '{indicator}';")
+    if query:
+        if action == 'post':
+            return query
+        if action == 'delete':
+            new_id = int(re.search('\d+', str(query)).group())
+            database_controller(database, f"DELETE FROM Entries WHERE id = {new_id};")
+            database_controller(database, f"DELETE FROM Collection WHERE indicator = '{indicator}';")
+            return True
+    else:
+        if action == 'post':
+            pass
+
+
+
+
+
 def data_import(database, data):
     new_id = re.findall('\d+', str(database_controller(database, 'SELECT MAX(collection_id) FROM Collection;')))
     if not new_id:
@@ -69,21 +85,24 @@ def data_import(database, data):
         new_id = int(new_id[0]) + 1
     cur_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
     collection = "INSERT INTO Collection(collection_id, indicator, indicator_value, creation_time) VALUES"
-    collection += "({}, '{}', '{}', '{}');".format(new_id, data[0]['indicator']['id'], data[0]['indicator']['value'], cur_time)
+    collection += "({}, '{}', '{}', '{}');"\
+        .format(new_id, data[0]['indicator']['id'], data[0]['indicator']['value'], cur_time)
     database_controller(database, collection)
 
     entry = "INSERT INTO Entries(id, country, date, value) VALUES"
     for sub_data in data:
-        entry += "({}, '{}', '{}', '{}'),".format(new_id, sub_data['country']['value'], sub_data['date'], sub_data['value'])
+        entry += "({}, '{}', '{}', '{}'),"\
+            .format(new_id, sub_data['country']['value'], sub_data['date'], sub_data['value'])
     entry = entry.rstrip(',') + ';'
     database_controller(database, entry)
 
 
 @api.route("/<string:collections>")
-class User(Resource):
-    def post(self):
-        if request.method == "GET":
-            return '123'
+class Post(Resource):
+    def post(self, collections=''):
+        query = database_controller('test.db', "SELECT * FROM Collection WHERE indicator = '{}';".format(collections))
+        if not query:
+            pass
 
 
 if __name__ == "__main__":
