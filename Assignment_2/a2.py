@@ -79,9 +79,9 @@ def retrieve_one_json_template(collection_query, entries_query):
               "entries": []
               }
     for i in range(len(entries_query)):
-        result["entries"].append({"country": entries_query[i][1],
-                                  "date": entries_query[i][2],
-                                  "value": entries_query[i][3]
+        result["entries"].append({"country": entries_query[i][0],
+                                  "date": entries_query[i][1],
+                                  "value": entries_query[i][2]
                                   })
     return result
 
@@ -95,6 +95,20 @@ def request_handler(database, collection, action, **kwargs):
         return get_handler(database, collection, 'getall')
     elif action == 'getone':
         return get_handler(database, collection, 'getone', collection_id=kwargs['collection_id'])
+    elif action == 'getoneyc':
+        return get_handler(database, collection, 'getoneyc', collection_id=kwargs['collection_id'],
+                           year=kwargs['year'], country=kwargs['country'])
+    elif action == 'gettopbottom':
+        top_test = re.search("^(top)(\d+)$", kwargs['query'])
+        bottom_test = re.search("^(bottom)(\d+)$", kwargs['query'])
+        if top_test:
+            return get_handler(database, collection, 'gettopbottom', collection_id=kwargs['collection_id'],
+                               year=kwargs['year'], flag='top', value=top_test.group(2))
+        if bottom_test:
+            return get_handler(database, collection, 'gettopbottom', collection_id=kwargs['collection_id'],
+                               year=kwargs['year'], flag='bottom', value=bottom_test.group(2))
+        else:
+            return {"message": "Your input arguments are not in correct format!"}, 400
 
 
 def get_handler(database, collection, action, **kwargs):
@@ -109,18 +123,68 @@ def get_handler(database, collection, action, **kwargs):
 
     elif action == 'getone':
         collection_query = database_controller(database,
-                                    f"SELECT * FROM Collection WHERE collection_name = '{collection}' "
-                                    f"AND collection_id = {kwargs['collection_id']};")
+                                               f"SELECT * "
+                                               f"FROM Collection "
+                                               f"WHERE collection_name = '{collection}'"
+                                               f"AND collection_id = {kwargs['collection_id']};")
+
         entries_query = database_controller(database,
-                                    f"SELECT * FROM Entries WHERE id = {kwargs['collection_id']};")
+                                            f"SELECT country, date, value "
+                                            f"FROM Entries "
+                                            f"WHERE id = {kwargs['collection_id']};")
         if collection_query:
             return retrieve_one_json_template(collection_query[0], entries_query), 200
         return {"message":
-                    f"The collection '{collection} with id {kwargs['collection_id']}'not found in data source!"}, 404
+                f"The collection '{collection} with id {kwargs['collection_id']}'not found in data source!"}, 404
+
+    elif action == 'getoneyc':
+        join_query = database_controller(database,
+                                         f"SELECT collection_id, indicator, country, date, value "
+                                         f"FROM Collection "
+                                         f"JOIN Entries ON (Collection.collection_id = Entries.id) "
+                                         f"WHERE collection_id = {kwargs['collection_id']} "
+                                         f"AND date = '{kwargs['year']}' "
+                                         f"AND country = '{kwargs['country']}';")
+        if join_query:
+            return {"collection_id": "{}".format(join_query[0][0]),
+                    "indicator": "{}".format(join_query[0][1]),
+                    "country": "{}".format(join_query[0][2]),
+                    "year": "{}".format(join_query[0][3]),
+                    "value": "{}".format(join_query[0][4])
+                    }, 200
+        return {"message":
+                f"The given arguments '{kwargs}' not found in data source!"}, 404
+
+    elif action == 'gettopbottom':
+        insert_flag = ''
+        if kwargs['flag'] == 'bottom':
+            insert_flag = 'DESC'
+
+        collection_query = database_controller(database,
+                                               f"SELECT * FROM Collection WHERE collection_name = '{collection}'"
+                                               f"AND collection_id = {kwargs['collection_id']};")
+
+        entries_query = database_controller(database,
+                                            f"SELECT country, date, value "
+                                            f"FROM Entries "
+                                            f"WHERE id = {kwargs['collection_id']} "
+                                            f"AND date = '{kwargs['year']}' "
+                                            f"AND value IS NOT 'None' "
+                                            f"GROUP BY country, date, value "
+                                            f"ORDER BY value {insert_flag} "
+                                            f"LIMIT {kwargs['value']};")
+
+        if collection_query:
+            result_dict = retrieve_one_json_template(collection_query[0], entries_query)
+            result_dict.pop("collection_id")
+            result_dict.pop("creation_time")
+            return result_dict, 200
+        return {"message":
+                f"No data matches your specified arguments in the database!"}, 404
 
 
 def post_handler(database, collection, indicator):
-    query = database_controller(database, f"SELECT * FROM Collection WHERE indicator ='{indicator}';")
+    query = database_controller(database, f"SELECT * FROM Collection WHERE indicator = '{indicator}';")
     if query:
         return collection_table_json_template(query[0]), 200
     else:
@@ -137,7 +201,7 @@ def post_handler(database, collection, indicator):
         entry_table_updater(database, new_id, data_first_page)
         entry_table_updater(database, new_id, data_second_page)
         new_query = database_controller(database, f"SELECT * FROM Collection WHERE indicator = '{indicator}';")
-        return collection_table_json_template(query[0]), 201
+        return collection_table_json_template(new_query[0]), 201
 
 
 def delete_handler(database, collection, collection_id):
@@ -169,6 +233,8 @@ def entry_table_updater(database, given_id, data):
 
 
 post_model = api.model('POST Payload', {"indicator_id": fields.String("NY.GDP.MKTP.CD")})
+parser = api.parser()
+parser.add_argument('q', type=str, help='Your query here (e.g."top10")', location='args')
 
 
 @api.route("/<collections>")
@@ -190,6 +256,22 @@ class DualRoute(Resource):
 
     def get(self, collections, collection_id):
         return request_handler('data.db', collections, 'getone', collection_id=collection_id)
+
+
+@api.route("/<collections>/<collection_id>/<year>/<country>")
+class QuadRoute(Resource):
+    def get(self, collections, collection_id, year, country):
+        return request_handler('data.db', collections, 'getoneyc', collection_id=collection_id,
+                               year=year, country=country)
+
+
+@api.route("/<collections>/<collection_id>/<year>")
+@api.doc(parser=parser)
+class ArgsRoute(Resource):
+    def get(self, collections, collection_id, year):
+        query = parser.parse_args()['q']
+        return request_handler('data.db', collections, 'gettopbottom', collection_id=collection_id,
+                               year=year, query=query)
 
 
 if __name__ == "__main__":
