@@ -169,21 +169,22 @@ def get_handler(database, collection, action, **kwargs):
     # question 6, get data for specified year, id, sort by its value, can be either descent or ascent.
     elif action == 'gettopbottom':
         insert_flag = ''
-        if kwargs['flag'] == 'bottom':
+        if kwargs['flag'] == 'top':     # if get top, it should be reverse sort and limit first values
             insert_flag = 'DESC'
 
         collection_query = database_controller(database,
                                                f"SELECT * FROM Collection WHERE collection_name = '{collection}'"
                                                f"AND collection_id = {kwargs['collection_id']};")
 
+        # should use cast(value as real), otherwise it sorted by string order
         entries_query = database_controller(database,
                                             f"SELECT country, date, value "
                                             f"FROM Entries "
                                             f"WHERE id = {kwargs['collection_id']} "
                                             f"AND date = '{kwargs['year']}' "
-                                            f"AND value IS NOT 'None' "
+                                            f"AND value != 'None' "
                                             f"GROUP BY country, date, value "
-                                            f"ORDER BY value {insert_flag} "
+                                            f"ORDER BY CAST(value AS REAL) {insert_flag} "
                                             f"LIMIT {kwargs['value']};")
 
         if collection_query:
