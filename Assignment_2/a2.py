@@ -114,7 +114,8 @@ def request_handler(database, collection, action, **kwargs):
             return get_handler(database, collection, 'gettopbottom', collection_id=kwargs['collection_id'],
                                year=kwargs['year'], flag='bottom', value=bottom_test.group(2))
         else:
-            return {"message": "Your input arguments are not in correct format! Must be either top<int> or bottom<int>."}, 400
+            return {"message":
+                    "Your input arguments are not in correct format! Must be either top<int> or bottom<int>."}, 400
 
 
 # dealing with all get requests, for question 3-6
@@ -145,7 +146,7 @@ def get_handler(database, collection, action, **kwargs):
         if collection_query:
             return retrieve_one_json_template(collection_query[0], entries_query), 200
         return {"message":
-                f"The collection '{collection} with id {kwargs['collection_id']}'not found in data source!"}, 404
+                f"The collection '{collection}' with id {kwargs['collection_id']} not found in data source!"}, 404
 
     # question 5, get data for specified year, id and country
     elif action == 'getoneyc':
@@ -164,7 +165,7 @@ def get_handler(database, collection, action, **kwargs):
                     "value": "{}".format(join_query[0][4])
                     }, 200
         return {"message":
-                f"The given arguments '{kwargs}' not found in data source!"}, 404
+                f"The given arguments collections = '{collection}', {kwargs} not found in data source!"}, 404
 
     # question 6, get data for specified year, id, sort by its value, can be either descent or ascent.
     elif action == 'gettopbottom':
@@ -255,12 +256,18 @@ parser.add_argument('q', type=str, help='Your query here (e.g."top10")', locatio
 
 
 # single-path route class, for question 1 and 3
-@api.route("/<collections>")
+@api.route("/<string:collections>")
+@api.response(200, 'OK')
+@api.response(400, 'Bad Request')
+@api.response(404, 'Not Found')
+@api.response(201, 'Created')
 class SingleRoute(Resource):
     @api.expect(post_model)
     def post(self, collections):
         if not api.payload or 'indicator_id' not in api.payload:
-            api.abort(400)
+            return {
+                "message": "Please check if the indicator_id is given!"
+            }, 400
         return request_handler('data.db', collections, 'post', indicator=api.payload['indicator_id'])
 
     def get(self, collections):
@@ -268,7 +275,10 @@ class SingleRoute(Resource):
 
 
 # double-paths route class, for question 2 and 4
-@api.route("/<collections>/<collection_id>")
+@api.route("/<string:collections>/<int:collection_id>")
+@api.response(200, 'OK')
+@api.response(400, 'Bad Request')
+@api.response(404, 'Not Found')
 class DualRoute(Resource):
     def delete(self, collections, collection_id):
         return request_handler('data.db', collections, 'delete', collection_id=collection_id)
@@ -278,7 +288,10 @@ class DualRoute(Resource):
 
 
 # quad-paths route class, for question 5
-@api.route("/<collections>/<collection_id>/<year>/<country>")
+@api.route("/<string:collections>/<int:collection_id>/<int:year>/<string:country>")
+@api.response(200, 'OK')
+@api.response(400, 'Bad Request')
+@api.response(404, 'Not Found')
 class QuadRoute(Resource):
     def get(self, collections, collection_id, year, country):
         return request_handler('data.db', collections, 'getoneyc', collection_id=collection_id,
@@ -286,8 +299,11 @@ class QuadRoute(Resource):
 
 
 # triple-paths route class, with argument required, for question 6
-@api.route("/<collections>/<collection_id>/<year>")
+@api.route("/<string:collections>/<int:collection_id>/<int:year>")
 @api.doc(parser=parser)
+@api.response(200, 'OK')
+@api.response(400, 'Bad Request')
+@api.response(404, 'Not Found')
 class ArgsRoute(Resource):
     def get(self, collections, collection_id, year):
         query = parser.parse_args()['q']
